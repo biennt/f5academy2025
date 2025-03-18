@@ -54,4 +54,10 @@ Trên máy AST (truy cập qua Web Shell) lúc vừa khởi tạo lab mới ch�
 
 ## Lab 1 - Cài đặt Application Study Tool
 Trên máy AST, mục Access chọn Web Shell để vào bash shell, từ đó làm theo hướng dẫn tại [link này](https://github.com/f5devcentral/application-study-tool).
-Địa chỉ IP quản trị của BIG-IP trong môi trường lab này là 10.1.1.9.
+
+Địa chỉ IP quản trị của BIG-IP trong môi trường lab này là 10.1.1.9. Bạn có thể thu thập dữ liệu thêm từ các module như ASM, DNS.
+
+Sau khi cài đặt xong, vào giao diện Grafana thông qua menu Access của máy AST. Hệ thống cần vài phút để có thể bắt đầu nhận đủ dữ liệu để vẽ các đồ thị. Trong lúc đó, bạn có thể truy cập các dịch vụ Web, DNS để phát sinh lưu lượng.
+
+## Lab 2- Cài đặt ELK
+Môi trường lab
