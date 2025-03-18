@@ -26,7 +26,7 @@ Mô hình trên gồm có:
 - AST: là máy dự kiến để các bạn tự cài Application Study Tool vào đó. Nó đã có sẵn git client, docker engine và docker compose
 - ELK: là hệ thống Elasticsearch + Logstash + Kibana. Mới chỉ có Elasticsearch và Kibana được cài đặt và setup dưới dạng 2 container. Việc còn lại cho bạn là cài đặt và cấu hình Logstash, tích hợp nó vào thành ELK
 
-## Lab 1 - reviewing the setup
+## Lab 0 - Đi một vòng kiểm tra các cấu hình hiện tại
 Trước khi sử dụng, thiết bị BIG-IP cần được kích hoạt license. Hãy liên hệ với giảng viên hoặc trợ giảng có mặt trong phòng học để có thông tin này.
 
 Trong mục Access, chọn TMUI để vào giao diện quản trị đồ họa. Tài khoản quản trị là:
@@ -52,6 +52,6 @@ Kiểm tra dịch vụ Kibana và Elasticsearch bằng cách truy cập qua mụ
 
 Trên máy AST (truy cập qua Web Shell) lúc vừa khởi tạo lab mới chỉ có docker engine, git client và một số phương tiện cơ bản
 
-### Reactivate BIG-IP license
-
-## Lab 2 - configure 
+## Lab 1 - Cài đặt Application Study Tool
+Trên máy AST, mục Access chọn Web Shell để vào bash shell, từ đó làm theo hướng dẫn tại [link này](https://github.com/f5devcentral/application-study-tool).
+Địa chỉ IP quản trị của BIG-IP trong môi trường lab này là 10.1.1.9.
