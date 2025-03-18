@@ -35,7 +35,17 @@ Trong mục Access, chọn TMUI để vào giao diện quản trị đồ họa.
 
 Kích hoạt license theo chế độ Manual, sau đó khởi động lại thiết bị (```System  ››  Configuration : Device : General```, bấm vào ```Reboot```)
 
-Sau khi khởi động lại, ki
+Sau khi khởi động lại, kiểm tra các thông tin cấu hình dịch vụ bằng cách truy cập vào giao diện quản trị web của thiết bị BIG-IP (chọn TMUI hoặc WEBGUI trong mục Access):
+- Kiểm tra thông tin về Node, Pool
+- Kiểm tra thông tin về virtual server (lưu ý địa chỉ virtual address)
+- Kiểm tra về WAF Policy, Event log
+
+Truy cập Web Shell vào Jump host, kiểm tra dịch vụ trên BIG-IP bằng cách:
+- Đối với dịch vụ web: gõ lệnh ```curl http://10.1.10.9/```
+- Đối với dịch vụ DNS: gõ lệnh ```dig @10.1.10.9 vnexpress.net```
+
+Đối với dịch vụ web, có thể truy cập qua mục Access --> JUICESHOP để xem ngay tại trình duyệt.
+
 ### Reactivate BIG-IP license
 
 ## Lab 2 - configure 
