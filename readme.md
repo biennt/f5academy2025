@@ -44,7 +44,13 @@ Truy cập Web Shell vào Jump host, kiểm tra dịch vụ trên BIG-IP bằng 
 - Đối với dịch vụ web: gõ lệnh ```curl http://10.1.10.9/```
 - Đối với dịch vụ DNS: gõ lệnh ```dig @10.1.10.9 vnexpress.net```
 
-Đối với dịch vụ web, có thể truy cập qua mục Access --> JUICESHOP để xem ngay tại trình duyệt.
+Đối với dịch vụ web, có thể truy cập từ BIG-IP qua mục Access --> JUICESHOP để xem ngay tại trình duyệt.
+
+Kiểm tra dịch vụ Kibana và Elasticsearch bằng cách truy cập qua mục Access --> Kibana trên máy ELK. Tài khoản quản trị là:
+- Username: admin
+- Password: f5!Demo.admin
+
+Trên máy AST (truy cập qua Web Shell) lúc vừa khởi tạo lab mới chỉ có docker engine, git client và một số phương tiện cơ bản
 
 ### Reactivate BIG-IP license
 
