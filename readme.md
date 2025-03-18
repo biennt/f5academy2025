@@ -1,6 +1,6 @@
 # F5 Academy 2025 - NetOps
 ## Mô hình kết nối trong lab
-Để cứu trái đất hay giảm dấu chân carbon, chúng tôi quyết định sẽ không sử dụng ảnh trong toàn bộ hướng dẫn này. Vì vậy mong bạn đọc chú ý thật kỹ.
+Để giảm dấu chân carbon và cứu trái đất, chúng tôi quyết định sẽ không sử dụng ảnh trong toàn bộ hướng dẫn này. Vì vậy mong bạn đọc chú ý thật kỹ.
 
 ```                                                                                
 +--------------+         +-------------+          +------------------+          
@@ -27,6 +27,15 @@ Mô hình trên gồm có:
 - ELK: là hệ thống Elasticsearch + Logstash + Kibana. Mới chỉ có Elasticsearch và Kibana được cài đặt và setup dưới dạng 2 container. Việc còn lại cho bạn là cài đặt và cấu hình Logstash, tích hợp nó vào thành ELK
 
 ## Lab 1 - reviewing the setup
+Trước khi sử dụng, thiết bị BIG-IP cần được kích hoạt license. Hãy liên hệ với giảng viên hoặc trợ giảng có mặt trong phòng học để có thông tin này.
+
+Trong mục Access, chọn TMUI để vào giao diện quản trị đồ họa. Tài khoản quản trị là:
+- Username: admin
+- Password: f5!Demo.admin
+
+Kích hoạt license theo chế độ Manual, sau đó khởi động lại thiết bị (```System  ››  Configuration : Device : General```, bấm vào ```Reboot```)
+
+Sau khi khởi động lại, ki
 ### Reactivate BIG-IP license
 
 ## Lab 2 - configure 
