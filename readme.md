@@ -268,4 +268,6 @@ docker stop juiceshop
 # đợi khoảng 20 giây
 docker start juiceshop
 ```
+Đến đây, chắc bạn cũng đã biết phải làm gì trên Kibana để nhìn thấy index f5ltm-* và tạo data view f5ltm tương ứng cho nó rồi. Tôi không viết hướng dẫn nữa.
+Bạn có thể thấy phần cấu hình ```Severity``` của log filter khá quan trọng. Nếu để là debug, thông tin log sẽ cự kỳ nhiều (quá mức cần thiết với việc vận hành nói chung).
 
