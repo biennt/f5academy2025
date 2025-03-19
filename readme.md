@@ -1,5 +1,7 @@
 # F5 Academy 2025 - NetOps
+
 ## Mô hình kết nối trong lab
+
 Để giảm dấu chân carbon và cứu trái đất, chúng tôi quyết định sẽ không sử dụng ảnh trong toàn bộ hướng dẫn này. Vì vậy mong bạn đọc chú ý thật kỹ.
 
 ```                                                                                
@@ -27,6 +29,7 @@ Mô hình trên gồm có:
 - ELK: là hệ thống Elasticsearch + Logstash + Kibana. Mới chỉ có Elasticsearch và Kibana được cài đặt và setup dưới dạng 2 container. Việc còn lại cho bạn là cài đặt và cấu hình Logstash, tích hợp nó vào thành ELK
 
 ## Lab 0 - Đi một vòng kiểm tra các cấu hình hiện tại
+
 Trước khi sử dụng, thiết bị BIG-IP cần được kích hoạt license. Hãy liên hệ với giảng viên hoặc trợ giảng có mặt trong phòng học để có thông tin này.
 
 Trong mục Access, chọn TMUI để vào giao diện quản trị đồ họa. Tài khoản quản trị là:
@@ -53,6 +56,7 @@ Kiểm tra dịch vụ Kibana và Elasticsearch bằng cách truy cập qua mụ
 Trên máy AST (truy cập qua Web Shell) lúc vừa khởi tạo lab mới chỉ có docker engine, git client và một số phương tiện cơ bản
 
 ## Lab 1 - Cài đặt Application Study Tool
+
 Trên máy AST, mục Access chọn Web Shell để vào bash shell, từ đó làm theo hướng dẫn tại [link này](https://github.com/f5devcentral/application-study-tool).
 
 Địa chỉ IP quản trị của BIG-IP trong môi trường lab này là 10.1.1.9. Bạn có thể thu thập dữ liệu thêm từ các module như ASM, DNS.
@@ -126,6 +130,9 @@ docker logs -f logstash
 Nếu không có lỗi gì, ta có thể vào BIG-IP để cấu hình đẩy log cho phần F5 WAF.
 
 ## Lab 3- Cấu hình F5 BIG-IP (WAF) để đẩy log về ELK
+
+Phần này sẽ sử dụng đến file pipeline/f5waf.conf trên máy ELK. Hãy kiểm tra trước nội dung của file này.
+
 Từ BIG-IP Host, vào TMUI/WEBGUI, sau khi đăng nhập chọn  ```Security  ››  Event Logs : Logging Profiles  ››  Create New Logging Profile...```
 
 Đặt tên profile là ```remote_log```, chọn ```Application Security```, sau đó:
@@ -174,27 +181,29 @@ Là một người quản trị thiết bị WAF của F5, khi xem xét các log
 Lúc này, bạn nên nghĩ về việc tạo một cái Dashboard, đưa vào đấy các biểu đồ giám sát một số chỉ số quan trọng.
 
 ## Lab 4- Cấu hình F5 BIG-IP (DNS) để đẩy log về ELK
+
+Phần này sẽ sử dụng đến file pipeline/f5dns.conf trên máy ELK. Hãy kiểm tra trước nội dung của file này.
+
 Trên BIG-IP Host, vào TMUI/WEBGUI, vào ```Local Traffic  ››  Pools : Pool List  ››  New Pool...``` để tạo một pool để đẩy log:
-- Name: nhập vào ```elkpool```
+- Name: nhập vào ```elkpooldns```
 - Member: nhập vào Node Name và Address là ```10.1.30.8```, Service Port là ```5141``` sau đó bấm vào Add (lab này chỉ có 1 logstash, nếu có nhiều hơn thì lần lượt add vào đây)
 
-Cuối cùng bấm vào Finished để hoàn tất việc tạo pool có tên là ```elkpool```
+Cuối cùng bấm vào Finished để hoàn tất việc tạo pool có tên là ```elkpooldns```
 
 Vào mục ```System  ››  Logs : Configuration : Log Destinations```, bấm ```Create```
-- Name: elklogdest
+- Name: elklogdestdns
 - Type: Remote High-Speed Log
-- Pool Name: elkpool
+- Pool Name: elkpooldns
 
 Bấm vào Finished để hoàn tất
 
 Vào mục ```System  ››  Logs : Configuration : Log Publishers```, bấm ```Create```
-- Name: elklogpub
-- Destinations: elklogdest
-
+- Name: elklogpubdns
+- Destinations: elklogdestdns
 
 Vào mục ```DNS  ››  Delivery : Profiles : Other : DNS Logging```, bấm ```Create```
 - Name: dnslogprofile
-- Log Publisher: elklogpub
+- Log Publisher: elklogpubdns
 - Chọn thêm Include Query ID và Log Responses (cơ bản là chọn hết các thông tin cần log)
 
 
@@ -225,3 +234,38 @@ Vào ```Data Views```, bấm vào ```Create data view```
 - Index pattern: f5dns-*
 
 Sau đó bấm vào ```Save data view to Kibana```. Kiểm tra trong màn hình ```Discover``` xem dữ liệu của data view ```f5dns```
+
+## Lab 5- Cấu hình F5 BIG-IP (DNS) để đẩy system log về ELK
+
+Phần này sẽ sử dụng đến file pipeline/f5ltm.conf trên máy ELK. Hãy kiểm tra trước nội dung của file này.
+
+Trên BIG-IP Host, vào TMUI/WEBGUI, vào ```Local Traffic  ››  Pools : Pool List  ››  New Pool...``` để tạo một pool để đẩy log:
+- Name: nhập vào ```elkpoolltm```
+- Member: nhập vào Node Name và Address là ```10.1.30.8```, Service Port là ```5142``` sau đó bấm vào Add (lab này chỉ có 1 logstash, nếu có nhiều hơn thì lần lượt add vào đây)
+
+Cuối cùng bấm vào Finished để hoàn tất việc tạo pool có tên là ```elkpoolltm```
+
+Vào mục ```System  ››  Logs : Configuration : Log Destinations```, bấm ```Create```
+- Name: elklogdestltm
+- Type: Remote High-Speed Log
+- Pool Name: elkpoolltm
+
+Bấm vào Finished để hoàn tất
+
+Vào mục ```System  ››  Logs : Configuration : Log Publishers```, bấm ```Create```
+- Name: elklogpubltm
+- Destinations: elklogdestltm
+
+Vào mục ```System  ››  Logs : Configuration : Log Filters```, bấm ```Create```
+- Name: filter_log_to_elk
+- Severity: Informational
+- Source: all
+- Log Publisher: elklogpubltm
+
+Để phát sinh log, bạn có thể vào máy webserver, tắt container juiceshop một lúc rồi bật lại:
+```
+docker stop juiceshop
+# đợi khoảng 20 giây
+docker start juiceshop
+```
+
