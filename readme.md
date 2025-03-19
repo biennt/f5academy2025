@@ -61,13 +61,38 @@ Sau khi cài đặt xong, vào giao diện Grafana thông qua menu Access của 
 
 ## Lab 2- Cài đặt ELK
 Môi trường lab đã cài đặt sẵn 2 containers: Elasticsearch và Kibana, tích hợp chúng với nhau. Một tài khoản quản trị mới là ```admin:f5!Demo.admin``` cũng đã được tạo để sẵn sàng thao tác.
+
 Nếu bạn quan tâm cách thức cài đặt 2 containers này, có thể tham khảo 2 hướng dẫn sau:
 - https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
 - https://www.elastic.co/guide/en/kibana/current/docker.html
-  ả cài đặt Logstash:
+
+Và cài đặt Logstash:
 - https://www.elastic.co/guide/en/logstash/current/docker.html
 
 ELK có thể truy cập theo 2 cách:
 - Giao diện command line (bash shell), vào Access --> Web Shell
 - Giao diện đồ họa của Kibana, vào Access --> Kibana
+
+Trong phần này, chúng ta sẽ bắt đầu cài đặt logstash lên máy chủ ELK. Nếu bạn để ý với lệnh ```docker images``` thì sẽ thấy rằng chúng tôi đã download về logstash image tương ứng với version của elasticsearch và kibana (cùng là 8.17.3).
+
+Để dễ hiểu, mô hình kết nối giữa 3 thành phần này và nguồn log như sau:
+```
+                                                                                                          
++------------------+                                                                                       
+|                  |         +------------------+                                                          
+|  Log sources     |         |                  |                                                          
+|                  |-------->|                  |         +------------------+         +------------------+
++------------------+         |     Logstash     |         |                  |         |                  |
++------------------+         |                  |-------->|  Elasticsearch   |<--------|      Kibana      |
+|                  |-------->|                  |         |                  |         |                  |
+|  Log sources     |         |                  |         +------------------+         +------------------+
+|                  |         +------------------+                                                          
++------------------+                                                                                       
+                           
+```
+- Log sources là nguồn log, ví dụ ở đây chính là thiết bị BIG-IP, nó đóng vai trò như một client gửi log thông qua giao thức syslog tới logstash (ta sẽ sử dụng 2 port lần lượt là 5140 và 5141 cho log tới từ WAF và DNS)
+- Logstash là thành phần sẽ được cài đặt ở đây. Nó có nhiệm vụ nhận dạng log, chuyển về format mà Elasticsearch có thể hiểu được (json), và gửi cho Elasticsearch theo giao thức https:// trên port 9200
+- Kibana là ứng dụng web, cung cấp giao diện cho ta thao tác với Elasticsearch dễ dàng hơn. Thậm chí nó còn làm được nhiều hơn thế, như vẽ các dashboard, đồ thị, phân tích điều tra.. Người quản trị truy cập vào Kibana theo giao thức http:// trên port 5601
+
+  
 
