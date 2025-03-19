@@ -60,4 +60,14 @@ Trên máy AST, mục Access chọn Web Shell để vào bash shell, từ đó l
 Sau khi cài đặt xong, vào giao diện Grafana thông qua menu Access của máy AST. Hệ thống cần vài phút để có thể bắt đầu nhận đủ dữ liệu để vẽ các đồ thị. Trong lúc đó, bạn có thể truy cập các dịch vụ Web, DNS để phát sinh lưu lượng.
 
 ## Lab 2- Cài đặt ELK
-Môi trường lab
+Môi trường lab đã cài đặt sẵn 2 containers: Elasticsearch và Kibana, tích hợp chúng với nhau. Một tài khoản quản trị mới là ```admin:f5!Demo.admin``` cũng đã được tạo để sẵn sàng thao tác.
+Nếu bạn quan tâm cách thức cài đặt 2 containers này, có thể tham khảo 2 hướng dẫn sau:
+- https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
+- https://www.elastic.co/guide/en/kibana/current/docker.html
+  ả cài đặt Logstash:
+- https://www.elastic.co/guide/en/logstash/current/docker.html
+
+ELK có thể truy cập theo 2 cách:
+- Giao diện command line (bash shell), vào Access --> Web Shell
+- Giao diện đồ họa của Kibana, vào Access --> Kibana
+
