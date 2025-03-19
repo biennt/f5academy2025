@@ -317,7 +317,7 @@ Thôi được rồi, không để bạn chờ lâu, chúng ta vào việc luôn
 
 Tên của pool trong lab này nên được đặt là ```elklogirule``` để có thể sử dụng trong iRule bên dưới.
    
-2. [Tạo iRule để đẩy log](https://clouddocs.f5.com/api/irules/HSL.html) Giảng viên sẽ giúp bạn trực tiếp các bước cơ bản của việc viết iRule, áp dụng nó vào Virtual server.
+2. [Tạo iRule để đẩy log](https://clouddocs.f5.com/api/irules/HSL.html). Giảng viên sẽ giúp bạn trực tiếp các bước cơ bản của việc viết iRule, áp dụng nó vào Virtual server.
 
 iRule này có thể được sử dụng với juiceshop:
 ```
