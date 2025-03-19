@@ -144,10 +144,27 @@ Ngoài ra còn có phần filter, giúp Logstash nhận dạng format của log 
 
 Giờ thì khởi tạo container logstash, với tất cả các file chỉ thị nguồn log nằm trong thư mục /f5academy2025/pipeline
 ```
-docker run -d --name logstash --net host -v /f5academy2025/pipeline:/usr/share/logstash/pipeline --restart=unless-stopped logstash:8.17.3
+docker run -d --name logstash --net host -v /f5academy2025/pipeline:/usr/share/logstash/pipeline -e XPACK_MONITORING_ENABLED=false --restart=unless-stopped logstash:8.17.3
 ```
 
 Kiểm tra quá trình khởi động logstash bằng lệnh:
 ```
 docker logs -f logstash
 ```
+Nếu không có lỗi gì, ta có thể vào BIG-IP để cấu hình đẩy log cho phần F5 WAF.
+
+Từ BIG-IP Host, vào TMUI/WEBGUI, sau khi đăng nhập chọn  ```Security  ››  Event Logs : Logging Profiles  ››  Create New Logging Profile...```
+
+Đặt tên profile là ```remote_log```, chọn ```Application Security```, sau đó:
+
+- ```Storage Destination``` chọn Remote Storage
+- ```Logging Format``` chọn Key-Value Pairs (Splunk)
+- ```IP Address``` nhập vào 10.1.30.8
+- ```Port``` nhập vào 5140 sau đó ấn vào ```Add```
+- ```Maximum Entry Length``` chọn 64K
+- ```Request Type``` chọn All requests
+
+Sau đó áp dụng profile này bằng cách vào ```Local Traffic  ››  Virtual Servers : Virtual Server List  ››  vshttp```, chọn ```Security --> Policies```
+
+Mục ```Log Profile``` chọn thêm ```remote_log``` sau đó bấm vào ```Update```
+
