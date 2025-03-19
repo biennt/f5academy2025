@@ -64,6 +64,7 @@ Trên máy AST, mục Access chọn Web Shell để vào bash shell, từ đó l
 Sau khi cài đặt xong, vào giao diện Grafana thông qua menu Access của máy AST. Hệ thống cần vài phút để có thể bắt đầu nhận đủ dữ liệu để vẽ các đồ thị. Trong lúc đó, bạn có thể truy cập các dịch vụ Web, DNS để phát sinh lưu lượng.
 
 ## Lab 2- Cài đặt ELK
+
 Môi trường lab đã cài đặt sẵn 2 containers: Elasticsearch và Kibana, tích hợp chúng với nhau. Một tài khoản quản trị mới là ```admin:f5!Demo.admin``` cũng đã được tạo để sẵn sàng thao tác.
 
 Nếu bạn quan tâm cách thức cài đặt 2 containers này, có thể tham khảo 2 hướng dẫn sau:
@@ -235,7 +236,7 @@ Vào ```Data Views```, bấm vào ```Create data view```
 
 Sau đó bấm vào ```Save data view to Kibana```. Kiểm tra trong màn hình ```Discover``` xem dữ liệu của data view ```f5dns```
 
-## Lab 5- Cấu hình F5 BIG-IP (DNS) để đẩy system log về ELK
+## Lab 5- Cấu hình F5 BIG-IP để đẩy system log về ELK
 
 Phần này sẽ sử dụng đến file pipeline/f5ltm.conf trên máy ELK. Hãy kiểm tra trước nội dung của file này.
 
@@ -270,4 +271,36 @@ docker start juiceshop
 ```
 Đến đây, chắc bạn cũng đã biết phải làm gì trên Kibana để nhìn thấy index f5ltm-* và tạo data view f5ltm tương ứng cho nó rồi. Tôi không viết hướng dẫn nữa.
 Bạn có thể thấy phần cấu hình ```Severity``` của log filter khá quan trọng. Nếu để là debug, thông tin log sẽ cự kỳ nhiều (quá mức cần thiết với việc vận hành nói chung).
+
+## Lab 6- Cấu hình F5 BIG-IP Request log để đẩy http request và response log về ELK
+
+Phần này sẽ sử dụng đến file pipeline/f5req.conf trên máy ELK. Hãy kiểm tra trước nội dung của file này.
+
+Trên BIG-IP Host, vào TMUI/WEBGUI, vào ```Local Traffic  ››  Pools : Pool List  ››  New Pool...``` để tạo một pool để đẩy log:
+- Name: nhập vào ```elklogreqpool```
+- Member: nhập vào Node Name và Address là ```10.1.30.8```, Service Port là ```5143``` sau đó bấm vào Add (lab này chỉ có 1 logstash, nếu có nhiều hơn thì lần lượt add vào đây)
+
+Cuối cùng bấm vào Finished để hoàn tất việc tạo pool có tên là ```elklogreqpool```
+
+Vào ```Local Traffic  ››  Profiles : Other : Request Logging```, bấm vào Create để tạo một request log profile:
+- Name: request-log-to-elk
+- Request Logging: Enabled
+- Template (cho Request log): ```req|$CLIENT_IP|$CLIENT_PORT|$VIRTUAL_IP|$VIRTUAL_PORT|$HTTP_METHOD|$HTTP_URI|${User-agent}```
+- HSL Protocol (cho Request log): TCP
+- Pool Name (cho Request log): elklogreqpool
+- Response Logging: Enabled
+- Template (cho Response log): ```res|$CLIENT_IP|$CLIENT_PORT|$VIRTUAL_IP|$VIRTUAL_PORT|$SNAT_IP|$SNAT_PORT|$SERVER_IP|$SERVER_PORT|$HTTP_METHOD|$HTTP_URI|$HTTP_STATCODE|$RESPONSE_SIZE|$RESPONSE_USECS|${User-agent}```
+- HSL Protocol (cho Response log): TCP
+- Pool Name (cho Response log): elklogreqpool
+
+Bạn có thể tham khảo thêm các trường thông tin được phép đặt (Template) tại [link này](https://techdocs.f5.com/en-us/bigip-14-0-0/external-monitoring-of-big-ip-systems-implementations-14-0-0/configuring-request-logging.html) 
+
+Áp dụng request log profile vừa tạo vào virtual server bằng cách truy cập vào ```Local Traffic  ››  Virtual Servers : Virtual Server List  ››  vshttp```, Mục Configuration nhớ chọn Advanced, mục ```Request Logging Profile``` chọn ```request-log-to-elk```
+
+Để phát sinh log, bạn có thể truy cập vào mục JUICESHOP trên menu Access của BIG-IP Host.. 
+
+Sau đó, thao tác trên Kibana tương tự như các phần trên:
+- Vào Stack Management: xem có index tên là f5http chưa, nếu có, tạo Data View cho nó.
+- Vào Discover, chọn Data View tương ứng để xem thông tin được log.
+
 
