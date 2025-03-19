@@ -314,12 +314,66 @@ Ví dụ: Bạn muốn lấy một thông tin gì đó từ POST data, cụ th�
 Thôi được rồi, không để bạn chờ lâu, chúng ta vào việc luôn:
 
 1. Tạo log pool tương tự như đã từng làm ở các bước trên (tạo 1 pool chứa 1 member trỏ đến ```10.1.30.8```, Service Port là ```5144``` chẳng hạn, port này được định nghĩa ở bước 3
-2. [Tạo iRule để đẩy log](https://clouddocs.f5.com/api/irules/HSL.html) Giảng viên sẽ giúp bạn trực tiếp các bước cơ bản của việc viết iRule, áp dụng nó vào Virtual server
+
+Tên của pool trong lab này nên được đặt là ```elklogirule``` để có thể sử dụng trong iRule bên dưới.
+   
+2. [Tạo iRule để đẩy log](https://clouddocs.f5.com/api/irules/HSL.html) Giảng viên sẽ giúp bạn trực tiếp các bước cơ bản của việc viết iRule, áp dụng nó vào Virtual server.
+
+iRule này có thể được sử dụng với juiceshop:
+```
+when HTTP_REQUEST {
+  set collect 0
+  if {([HTTP::method] eq "POST") and ([HTTP::uri] starts_with "/rest/user/login")} {
+    set reqTime [clock format [clock seconds] -format "%d/%m/%Y %H:%M:%S"]
+    set logstring "$reqTime|[IP::client_addr]|[HTTP::method]|[HTTP::uri]"
+    HTTP::collect 200
+    set collect 1
+  }
+}
+when HTTP_REQUEST_DATA {
+  if {$collect eq 1} {
+    set payload [HTTP::payload 200]
+    HTTP::release
+    set logstring "$logstring|$payload"
+    log local0.info $logstring
+    set hsl [HSL::open -proto UDP -pool elklogirule]
+    HSL::send $hsl $logstring
+  }
+}
+```
 3. Tạo file input và grok filter cho logstash
-4. Khởi động lại logstash để nó nhận file input mới
-5. Tạo request để phát sinh log (ví dụ thử đăng nhập)
+
+File này đã có sẵn trong thư mục pipeline trên máy chủ ELK khi clone từ github về:
+```
+input {
+  tcp {
+    type => "irule"
+    port => 5144
+  }
+  udp {
+    type => "irule"
+    port => 5144
+  }
+}
+
+filter {
+  grok {
+    match => {
+      "message" => [
+         "%{DATE_EU:request_date} %{TIME:request_time}\|%{IP:client_ip}\|%{DATA:method}\|%{DATA:uri}\|{\"email\":\"%{DATA:email}\",\"password\":\"%{DATA:password}\"\}"
+       ]
+    }
+  }
+}
+```
+
+4. Khởi động lại logstash để nó nhận file input mới (nếu cần)
+```
+docker stop logstash
+docker start logstash
+```
+5. Tạo request để phát sinh log: thử đăng nhập vào JUICESHOP
 6. Trên Kibana: kiểm tra index mới được tạo, nếu có thì tạo Data view cho nó.
 7. Cuối cùng, vào Discover của Kibana để xem thành quả!
 
-
-
+**Happy logging!**
