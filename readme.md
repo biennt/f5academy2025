@@ -168,3 +168,19 @@ Sau đó áp dụng profile này bằng cách vào ```Local Traffic  ››  Vir
 
 Mục ```Log Profile``` chọn thêm ```remote_log``` sau đó bấm vào ```Update```
 
+Tạo một số request tới dịch vụ web để phát sinh log:
+- Từ BIG-IP Host, mục Access chọn JUICESHOP
+- Từ Jump host, mục Access chọn Web Shell và sau đó sử dụng lệnh curl để tạo traffic, ví dụ ```curl http://10.1.10.9/```
+
+Vào Kibana, chọn ```Stack Management --> Index Management``` ta sẽ nhìn thấy một index mới bắt đầu bằng ```f5waf-``` theo sau là định dạng năm-tháng-ngày được tạo ra.
+
+Cũng từ giao diện này, chọn ```Data Views``` (trong phần Kibana), bấm vào ```Create data view```. 
+
+Đặt tên Data view là f5waf, Index pattern là ```f5waf-*``` , sau đó bấm vào ```Save data view to Kibana```
+
+Cuối cùng, xem log nhận được bằng cách bấm vào menu 3 dấu gạch ngang phía trên bên trái cửa sổ (thỉnh thoảng người ta gọi đây là hamburger menu vì nó giống cái bánh mì kẹp) và chọn Discover. Chọn Data view là f5waf nếu nó chưa được chọn sẵn.
+Nếu bạn thấy được các dòng log, nghĩa là từ BIG-IP đã gửi được các log liên quan đến WAF tới ELK. **Chúc mừng bạn!**
+
+Giảng viên sẽ hướng dẫn bạn một số thao tác, các tính năng cơ bản trên màn hình ```Discover``` này.
+
+
