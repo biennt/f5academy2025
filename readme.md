@@ -153,6 +153,7 @@ docker logs -f logstash
 ```
 Nếu không có lỗi gì, ta có thể vào BIG-IP để cấu hình đẩy log cho phần F5 WAF.
 
+## Lab 3- Cấu hình F5 BIG-IP (WAF) để đẩy log về ELK
 Từ BIG-IP Host, vào TMUI/WEBGUI, sau khi đăng nhập chọn  ```Security  ››  Event Logs : Logging Profiles  ››  Create New Logging Profile...```
 
 Đặt tên profile là ```remote_log```, chọn ```Application Security```, sau đó:
@@ -193,9 +194,11 @@ Là một người quản trị thiết bị WAF của F5, khi xem xét các log
 - x_forwarded_for_header_value: địa chỉ IP của client được lưu lại trong HTTP header (X-Forward-For) do thiết bị proxy phía trên chèn vào, đây là thông tin layer 7, tin vào giá trị này hay không còn tùy thuộc vào ngữ cảnh. Giảng viên sẽ giải thích kỹ hơn cho bạn
 - dest_ip và dest_port là địa chỉ IP và port dịch vụ đang thực hiện request này trên BIG-IP (đại diện cho ứng dụng)
 - policy_name: tên policy đang được áp dụng
-- request_status: trạng thái của request (có thể là alert hoặc pass hoặc block)
+- request_status: trạng thái của request (có thể là alerted hoặc passed hoặc blocked)
 - violations: các loại vi phạm đối với request đó
 - request: nội dung cụ thể của request (bắt đầu bằng method, sau đó là URI và các headers)
 - violation_rating: mức độ vi phạm được đánh số từ 1 đến 5. Số càng lớn thể hiện mức độ vi phạm càng nghiêm trọng. Nếu bạn để ý, trong file cấu hình logstash, tôi đã chuyển đổi giá trị này từ string sang Integer để chúng ta có thể thao tác với các phép toán so sánh trong Elasticsearc/Kibana. Ví dụ bạn có thể lọc các request có violation_rating từ 3 trở lên để phân tích một cách dễ dàng.
 
-  
+Lúc này, bạn nên nghĩ về việc tạo một cái Dashboard, đưa vào đấy các biểu đồ giám sát một số chỉ số quan trọng.
+
+## Lab 4- Cấu hình F5 BIG-IP (DNS) để đẩy log về ELK
