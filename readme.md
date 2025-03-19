@@ -313,10 +313,13 @@ Ví dụ: Bạn muốn lấy một thông tin gì đó từ POST data, cụ th�
 
 Thôi được rồi, không để bạn chờ lâu, chúng ta vào việc luôn:
 
-1. Log pool tương tự như đã từng làm ở các bước trên (tạo 1 pool chứa 1 member trỏ đến ```10.1.30.8```, Service Port là ```5144``` chẳng hạn, port này được định nghĩa ở bước 3
+1. Tạo log pool tương tự như đã từng làm ở các bước trên (tạo 1 pool chứa 1 member trỏ đến ```10.1.30.8```, Service Port là ```5144``` chẳng hạn, port này được định nghĩa ở bước 3
 2. [Tạo iRule để đẩy log](https://clouddocs.f5.com/api/irules/HSL.html) Giảng viên sẽ giúp bạn trực tiếp các bước cơ bản của việc viết iRule, áp dụng nó vào Virtual server
 3. Tạo file input và grok filter cho logstash
 4. Khởi động lại logstash để nó nhận file input mới
 5. Tạo request để phát sinh log (ví dụ thử đăng nhập)
 6. Trên Kibana: kiểm tra index mới được tạo, nếu có thì tạo Data view cho nó.
+7. Cuối cùng, vào Discover của Kibana để xem thành quả!
+
+
 
