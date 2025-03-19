@@ -94,5 +94,60 @@ Trong phần này, chúng ta sẽ bắt đầu cài đặt logstash lên máy ch
 - Logstash là thành phần sẽ được cài đặt ở đây. Nó có nhiệm vụ nhận dạng log, chuyển về format mà Elasticsearch có thể hiểu được (json), và gửi cho Elasticsearch theo giao thức https:// trên port 9200
 - Kibana là ứng dụng web, cung cấp giao diện cho ta thao tác với Elasticsearch dễ dàng hơn. Thậm chí nó còn làm được nhiều hơn thế, như vẽ các dashboard, đồ thị, phân tích điều tra.. Người quản trị truy cập vào Kibana theo giao thức http:// trên port 5601
 
-  
+Đứng từ giao diện bash shell của ELK, gõ lệnh:
+```
+git clone https://github.com/biennt/f5academy2025.git
+```
+Kiểm tra nội dung file f5waf.conf
+```
+root@ip-10-1-1-8:/# cat /f5academy2025/pipeline/f5waf.conf 
+input {
+  tcp {
+    type => "syslog"
+    port => 5140
+  }
+  udp {
+    type => "syslog"
+    port => 5140
+  }
+}
 
+filter {
+  grok {
+        match => { "message" => "<%{NUMBER:msgid}>%{DATA:logtime} %{HOSTNAME:logdevice} ASM:unit_hostname=\"%{HOSTNAME:unit_hostname}\",management_ip_address=\"%{IP:mgmt_ip}\",management_ip_address_2=\"%{DATA:mgmt_ip2}\",http_class_name=\"%{DATA:http_class_name}\",web_application_name=\"%{DATA:web_application_name}\",policy_name=\"%{DATA:policy_name}\",policy_apply_date=\"%{TIMESTAMP_ISO8601:policy_apply_date}\",violations=\"%{DATA:violations}\",support_id=\"%{DATA:support_id}\",request_status=\"%{DATA:request_status}\",response_code=\"%{DATA:response_code}\",ip_client=\"%{DATA:ip_client}\",route_domain=\"%{DATA:route_domain}\",method=\"%{DATA:method}\",protocol=\"%{DATA:protocol}\",query_string=\"%{DATA:query_string}\",x_forwarded_for_header_value=\"%{DATA:x_forwarded_for_header_value}\",sig_ids=\"%{DATA:sig_ids}\",sig_names=\"%{DATA:sig_names}\",date_time=\"%{TIMESTAMP_ISO8601:timestamp}\",severity=\"%{DATA:severity}\",attack_type=\"%{DATA:attack_type}\",geo_location=\"%{DATA:geo_location}\",ip_address_intelligence=\"%{DATA:ip_address_intelligence}\",username=\"%{DATA:username}\",session_id=\"%{DATA:session_id}\",src_port=\"%{DATA:src_port}\",dest_port=\"%{DATA:dest_port}\",dest_ip=\"%{IP:dest_ip}\",sub_violations=\"%{DATA:sub_violations}\",virus_name=\"%{DATA:virus_name}\",violation_rating=\"%{NUMBER:violation_rating}\",websocket_direction=\"%{DATA:websocket_direction}\",websocket_message_type=\"%{DATA:websocket_message_type}\",device_id=\"%{DATA:device_id}\",staged_sig_ids=\"%{DATA:staged_sig_ids}\",staged_sig_names=\"%{DATA:staged_sig_names}\",threat_campaign_names=\"%{DATA:threat_campaign_names}\",staged_threat_campaign_names=\"%{DATA:staged_threat_campaign_names}\",blocking_exception_reason=\"%{DATA:blocking_exception_reason}\",captcha_result=\"%{DATA:captcha_result}\",microservice=\"%{DATA:microservice}\",tap_event_id=\"%{DATA:tap_event_id}\",tap_vid=\"%{DATA:tap_vid}\",vs_name=\"%{DATA:vs_name}\",sig_cves=\"%{DATA:sig_cves}\",staged_sig_cves=\"%{DATA:staged_sig_cves}\",uri=\"%{DATA:uri}\",fragment=\"%{DATA:fragment}\",request=\"%{DATA:request},response=\"%{DATA:response}\""}
+  }
+  mutate {
+    convert => {"violation_rating" => "integer"}
+  }
+
+}
+
+output {
+  elasticsearch {
+    hosts => ["10.1.30.8:9200"]
+    ssl_enabled => true
+    ssl_verification_mode => none
+    index => "f5waf-%{+YYYY.MM.dd}"
+    user => "admin"
+    password => "f5!Demo.admin"
+  }
+}
+```
+Lưu ý các thông tin sau:
+- Hosts: chứa tối thiểu 1 địa chỉ của elasticsearch master server
+- Index: tên index sẽ được tạo/cập nhật dữ liệu trên elasticsearch
+- User và Password: thông tin được logstash dùng để truy cập vào elasticsearch
+
+Ngoài ra còn có phần filter, giúp Logstash nhận dạng format của log được gửi tới để nó biết cách chuyển về JSON. Bạn có thể tham khảo các ứng dụng trợ giúp tạo grok filter như:
+- Tạo filter online: https://grokdebugger.com/
+- Dùng chính Kibana để tạo filter: https://www.elastic.co/guide/en/kibana/current/xpack-grokdebugger.html
+
+Giờ thì khởi tạo container logstash, với tất cả các file chỉ thị nguồn log nằm trong thư mục /f5academy2025/pipeline
+```
+docker run -d --name logstash --net host -v /f5academy2025/pipeline:/usr/share/logstash/pipeline --restart=unless-stopped logstash:8.17.3
+```
+
+Kiểm tra quá trình khởi động logstash bằng lệnh:
+```
+docker logs -f logstash
+```
