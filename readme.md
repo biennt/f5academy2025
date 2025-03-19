@@ -98,41 +98,13 @@ Trong phần này, chúng ta sẽ bắt đầu cài đặt logstash lên máy ch
 ```
 git clone https://github.com/biennt/f5academy2025.git
 ```
-Kiểm tra nội dung file f5waf.conf
-```
-root@ip-10-1-1-8:/# cat /f5academy2025/pipeline/f5waf.conf 
-input {
-  tcp {
-    type => "syslog"
-    port => 5140
-  }
-  udp {
-    type => "syslog"
-    port => 5140
-  }
-}
+Kiểm tra nội dung các file trong thư mục pipeline/
+- output.conf chứa thông tin để logstash ghi dữ liệu vào elasticsearch
+- f5waf.conf định nghĩa đầu vào cho log source từ F5 BIG-IP WAF
+- f5dns.conf định nghĩa đầu vào cho log source từ F5 BIG-IP DNS
+- .. và các file khác nếu có
 
-filter {
-  grok {
-        match => { "message" => "<%{NUMBER:msgid}>%{DATA:logtime} %{HOSTNAME:logdevice} ASM:unit_hostname=\"%{HOSTNAME:unit_hostname}\",management_ip_address=\"%{IP:mgmt_ip}\",management_ip_address_2=\"%{DATA:mgmt_ip2}\",http_class_name=\"%{DATA:http_class_name}\",web_application_name=\"%{DATA:web_application_name}\",policy_name=\"%{DATA:policy_name}\",policy_apply_date=\"%{TIMESTAMP_ISO8601:policy_apply_date}\",violations=\"%{DATA:violations}\",support_id=\"%{DATA:support_id}\",request_status=\"%{DATA:request_status}\",response_code=\"%{DATA:response_code}\",ip_client=\"%{DATA:ip_client}\",route_domain=\"%{DATA:route_domain}\",method=\"%{DATA:method}\",protocol=\"%{DATA:protocol}\",query_string=\"%{DATA:query_string}\",x_forwarded_for_header_value=\"%{DATA:x_forwarded_for_header_value}\",sig_ids=\"%{DATA:sig_ids}\",sig_names=\"%{DATA:sig_names}\",date_time=\"%{TIMESTAMP_ISO8601:timestamp}\",severity=\"%{DATA:severity}\",attack_type=\"%{DATA:attack_type}\",geo_location=\"%{DATA:geo_location}\",ip_address_intelligence=\"%{DATA:ip_address_intelligence}\",username=\"%{DATA:username}\",session_id=\"%{DATA:session_id}\",src_port=\"%{DATA:src_port}\",dest_port=\"%{DATA:dest_port}\",dest_ip=\"%{IP:dest_ip}\",sub_violations=\"%{DATA:sub_violations}\",virus_name=\"%{DATA:virus_name}\",violation_rating=\"%{NUMBER:violation_rating}\",websocket_direction=\"%{DATA:websocket_direction}\",websocket_message_type=\"%{DATA:websocket_message_type}\",device_id=\"%{DATA:device_id}\",staged_sig_ids=\"%{DATA:staged_sig_ids}\",staged_sig_names=\"%{DATA:staged_sig_names}\",threat_campaign_names=\"%{DATA:threat_campaign_names}\",staged_threat_campaign_names=\"%{DATA:staged_threat_campaign_names}\",blocking_exception_reason=\"%{DATA:blocking_exception_reason}\",captcha_result=\"%{DATA:captcha_result}\",microservice=\"%{DATA:microservice}\",tap_event_id=\"%{DATA:tap_event_id}\",tap_vid=\"%{DATA:tap_vid}\",vs_name=\"%{DATA:vs_name}\",sig_cves=\"%{DATA:sig_cves}\",staged_sig_cves=\"%{DATA:staged_sig_cves}\",uri=\"%{DATA:uri}\",fragment=\"%{DATA:fragment}\",request=\"%{DATA:request},response=\"%{DATA:response}\""}
-  }
-  mutate {
-    convert => {"violation_rating" => "integer"}
-  }
 
-}
-
-output {
-  elasticsearch {
-    hosts => ["10.1.30.8:9200"]
-    ssl_enabled => true
-    ssl_verification_mode => none
-    index => "f5waf-%{+YYYY.MM.dd}"
-    user => "admin"
-    password => "f5!Demo.admin"
-  }
-}
-```
 Lưu ý các thông tin sau:
 - Hosts: chứa tối thiểu 1 địa chỉ của elasticsearch master server
 - Index: tên index sẽ được tạo/cập nhật dữ liệu trên elasticsearch
@@ -202,3 +174,54 @@ Là một người quản trị thiết bị WAF của F5, khi xem xét các log
 Lúc này, bạn nên nghĩ về việc tạo một cái Dashboard, đưa vào đấy các biểu đồ giám sát một số chỉ số quan trọng.
 
 ## Lab 4- Cấu hình F5 BIG-IP (DNS) để đẩy log về ELK
+Trên BIG-IP Host, vào TMUI/WEBGUI, vào ```Local Traffic  ››  Pools : Pool List  ››  New Pool...``` để tạo một pool để đẩy log:
+- Name: nhập vào ```elkpool```
+- Member: nhập vào Node Name và Address là ```10.1.30.8```, Service Port là ```5141``` sau đó bấm vào Add (lab này chỉ có 1 logstash, nếu có nhiều hơn thì lần lượt add vào đây)
+
+Cuối cùng bấm vào Finished để hoàn tất việc tạo pool có tên là ```elkpool```
+
+Vào mục ```System  ››  Logs : Configuration : Log Destinations```, bấm ```Create```
+- Name: elklogdest
+- Type: Remote High-Speed Log
+- Pool Name: elkpool
+
+Bấm vào Finished để hoàn tất
+
+Vào mục ```System  ››  Logs : Configuration : Log Publishers```, bấm ```Create```
+- Name: elklogpub
+- Destinations: elklogdest
+
+
+Vào mục ```DNS  ››  Delivery : Profiles : Other : DNS Logging```, bấm ```Create```
+- Name: dnslogprofile
+- Log Publisher: elklogpub
+- Chọn thêm Include Query ID và Log Responses (cơ bản là chọn hết các thông tin cần log)
+
+
+Vào mục ```DNS  ››  Delivery : Profiles : DNS```, chọn profile có tên là ```dnsprofile```. Profile này đã được cấu hình sẵn để làm DNS Caching (vì thế trong Lab 0 chúng ta mới có thể kiểm tra và thử dịch vụ phân giải DNS thành công)
+
+Trong ```dnsprofile```, phần ```Logging and Reporting```:
+- Logging: Enabled
+Logging Profile: dnslogprofile
+
+Bấm vào Update để hoàn tất.
+
+Từ máy Jumphost, bạn có thể sử dụng lệnh dig để truy vấn DNS và qua đó tạo log..
+
+Ví dụ:
+```
+dig @10.1.10.9 facebook.com
+dig @10.1.10.9 google.com
+dig @10.1.10.9 vnexpress.net
+dig @10.1.10.9 dantri.com
+```
+
+Nào, bây giờ hãy nín thở! Vào Kibana kiểm tra:
+
+Vào Stack Management --> Index Management: bạn có nhìn thấy index có tên bắt đầu là f5dns- theo sau là định dạng năm-tháng-ngày không? Nếu có, hãy tiến hành tạo data view để xem trên Discover
+
+Vào ```Data Views```, bấm vào ```Create data view```
+- Name: f5dns
+- Index pattern: f5dns-*
+
+Sau đó bấm vào ```Save data view to Kibana```. Kiểm tra trong màn hình ```Discover``` xem dữ liệu của data view ```f5dns```
