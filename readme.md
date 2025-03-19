@@ -179,8 +179,23 @@ Cũng từ giao diện này, chọn ```Data Views``` (trong phần Kibana), bấ
 Đặt tên Data view là f5waf, Index pattern là ```f5waf-*``` , sau đó bấm vào ```Save data view to Kibana```
 
 Cuối cùng, xem log nhận được bằng cách bấm vào menu 3 dấu gạch ngang phía trên bên trái cửa sổ (thỉnh thoảng người ta gọi đây là hamburger menu vì nó giống cái bánh mì kẹp) và chọn Discover. Chọn Data view là f5waf nếu nó chưa được chọn sẵn.
-Nếu bạn thấy được các dòng log, nghĩa là từ BIG-IP đã gửi được các log liên quan đến WAF tới ELK. **Chúc mừng bạn!**
+
+Nếu bạn thấy được các dòng log, nghĩa là từ BIG-IP đã gửi được các log liên quan đến WAF tới ELK. 
+
+Nếu bạn nhìn thấy ```_grokparsefailure``` trong log, nghĩa là có lỗi gì đó liên quan đến định dạng mà logstash nó không thể format được, thường là do viết sai filter (grok filter), bạn có thể xem lại file f5waf.conf, phần ```filter --> grok --> match```, và sử dụng công cụ Grok Debugger để kiểm tra, chỉnh sửa. Nhưng nhìn chung thì đến đây là 99% hoàn thành rồi.
+
+**Chúc mừng bạn!**
 
 Giảng viên sẽ hướng dẫn bạn một số thao tác, các tính năng cơ bản trên màn hình ```Discover``` này.
 
+Là một người quản trị thiết bị WAF của F5, khi xem xét các log truy cập, bạn quan tâm điều gì? Tôi có một số gợi ý về các trường thông tin sau:
+- ip_client: địa chỉ IP của client (layer 4), đôi khi nó không phải địa chỉ IP thật của người dùng nếu đi qua một hoặc nhiều các proxy khác trước khi tới thiết bị WAF
+- x_forwarded_for_header_value: địa chỉ IP của client được lưu lại trong HTTP header (X-Forward-For) do thiết bị proxy phía trên chèn vào, đây là thông tin layer 7, tin vào giá trị này hay không còn tùy thuộc vào ngữ cảnh. Giảng viên sẽ giải thích kỹ hơn cho bạn
+- dest_ip và dest_port là địa chỉ IP và port dịch vụ đang thực hiện request này trên BIG-IP (đại diện cho ứng dụng)
+- policy_name: tên policy đang được áp dụng
+- request_status: trạng thái của request (có thể là alert hoặc pass hoặc block)
+- violations: các loại vi phạm đối với request đó
+- request: nội dung cụ thể của request (bắt đầu bằng method, sau đó là URI và các headers)
+- violation_rating: mức độ vi phạm được đánh số từ 1 đến 5. Số càng lớn thể hiện mức độ vi phạm càng nghiêm trọng. Nếu bạn để ý, trong file cấu hình logstash, tôi đã chuyển đổi giá trị này từ string sang Integer để chúng ta có thể thao tác với các phép toán so sánh trong Elasticsearc/Kibana. Ví dụ bạn có thể lọc các request có violation_rating từ 3 trở lên để phân tích một cách dễ dàng.
 
+  
