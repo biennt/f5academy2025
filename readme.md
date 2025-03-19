@@ -303,4 +303,20 @@ Sau đó, thao tác trên Kibana tương tự như các phần trên:
 - Vào Stack Management: xem có index tên là f5http chưa, nếu có, tạo Data View cho nó.
 - Vào Discover, chọn Data View tương ứng để xem thông tin được log.
 
+## Lab 7- Sử dụng iRule để log về ELK
+
+Chà chà, thành thật mà nói: **Xin chúc mừng bạn!**, và tôi cũng phải cám ơn bạn về sự kiên trì cho tới tận chỗ này. 
+
+Như bạn thấy, chúng ta đã có khá nhiều thông tin lấy được từ F5 BIG-IP, từ log của DNS, HTTP đến WAF và cả system log của bản thân thiết bị BIG-IP.. 99% thông tin cần thiết cho người vận hành theo dõi hệ thống F5 BIG-IP cơ bản có thể thu thập bằng các cách như vậy mà không phải lập trình hay tạo script iRule gì cả. Bài lab này dành cho những bạn muốn làm nhiều hơn nữa, giải quyết 1% ngóc ngách nào đó. 
+
+Ví dụ: Bạn muốn lấy một thông tin gì đó từ POST data, cụ thể như: Bạn muốn log lại tên user đăng nhập vào một ứng dụng nào đó chẳng hạn. Thì đúng là nó thuộc 1% còn lại, vì giả sử không có license WAF, bạn không có cách nào track được User's session. Không xác định được ai đã đăng nhập vào lúc nào.
+
+Thôi được rồi, không để bạn chờ lâu, chúng ta vào việc luôn:
+
+1. Log pool tương tự như đã từng làm ở các bước trên (tạo 1 pool chứa 1 member trỏ đến ```10.1.30.8```, Service Port là ```5144``` chẳng hạn, port này được định nghĩa ở bước 3
+2. [Tạo iRule để đẩy log](https://clouddocs.f5.com/api/irules/HSL.html) Giảng viên sẽ giúp bạn trực tiếp các bước cơ bản của việc viết iRule, áp dụng nó vào Virtual server
+3. Tạo file input và grok filter cho logstash
+4. Khởi động lại logstash để nó nhận file input mới
+5. Tạo request để phát sinh log (ví dụ thử đăng nhập)
+6. Trên Kibana: kiểm tra index mới được tạo, nếu có thì tạo Data view cho nó.
 
