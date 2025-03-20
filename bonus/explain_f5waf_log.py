@@ -6,7 +6,7 @@ from openai import OpenAI
 
 load_dotenv(override=True)
 os.environ['OPENAI_API_KEY'] = os.getenv('OPENAI_API_KEY', 'your-key-if-not-using-env')
-os.environ['ES_API_KEY'] = os.getenv('ES_API_KEY', 'your-key-if-not-using-env')
+ES_API_KEY = os.getenv('ES_API_KEY', 'your-key-if-not-using-env')
 
 maxsize = 100
 es = "https://192.168.0.2:9200/"
