@@ -6,14 +6,15 @@ from openai import OpenAI
 
 load_dotenv(override=True)
 os.environ['OPENAI_API_KEY'] = os.getenv('OPENAI_API_KEY', 'your-key-if-not-using-env')
+os.environ['ES_API_KEY'] = os.getenv('ES_API_KEY', 'your-key-if-not-using-env')
 
 maxsize = 100
 es = "https://192.168.0.2:9200/"
-es_apikey = "T28tbWtwVUJ3Z21wVWRHcks3WVE6SDIwNWZybXNSZWV6SHZEY3lPQ3k3Zw=="
+
 index_pattern = "f5waf-*"
 query = {"range": {"@timestamp": {"gte": "now-10m"}}}
 
-client = Elasticsearch(es, api_key=es_apikey,verify_certs=False, ssl_show_warn=False)
+client = Elasticsearch(es, api_key=ES_API_KEY,verify_certs=False, ssl_show_warn=False)
 resp = client.search(index=index_pattern, size=maxsize, query=query)
 
 documents = ""
