@@ -63,7 +63,7 @@ Trên máy AST, mục Access chọn Web Shell để vào bash shell, từ đó l
 
 Sau khi cài đặt xong, vào giao diện Grafana thông qua menu Access của máy AST. Hệ thống cần vài phút để có thể bắt đầu nhận đủ dữ liệu để vẽ các đồ thị. Trong lúc đó, bạn có thể truy cập các dịch vụ Web, DNS để phát sinh lưu lượng.
 
-Muốn hiện các thông tin này trên Grafana riêng của bạn? (Hãy xem bài viết này)[https://community.f5.com/kb/technicalarticles/displaying-application-study-tool-ast-dashboards-in-your-own-grafana-instance/340272]
+Muốn hiện các thông tin này trên Grafana riêng của bạn? Hãy xem bài viết này: [https://community.f5.com/kb/technicalarticles/displaying-application-study-tool-ast-dashboards-in-your-own-grafana-instance/340272]
 
 ## Lab 2- Cài đặt ELK
 
